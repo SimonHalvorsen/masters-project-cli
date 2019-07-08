@@ -1,6 +1,6 @@
 def filter_alarm_list(facility_id, sensor_id, alarms):
-    no_alarms_facility = "No alarms found for facility with id {}".format(facility_id)
-    no_alarms_sensor = "No alarms found for sensor with id {}".format(sensor_id)
+    no_alarms_facility = f"No alarms found for facility with id {facility_id}"
+    no_alarms_sensor = f"No alarms found for sensor with id {sensor_id}"
 
     if not alarms:
         return "No alarms found."

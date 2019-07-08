@@ -54,5 +54,4 @@ while True:
                 session.flush()
             except SQLAlchemyError as e:
                 print(e)
-                print("IEFUGHDIVFBEWFIJVFRHEIJSDNJ VFJØLDFHJNGFKLVDSFJGNBESRFDILSJNJKDS")
                 session.rollback()
