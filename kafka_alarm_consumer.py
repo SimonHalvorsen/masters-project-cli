@@ -1,5 +1,5 @@
-from kafka import KafkaConsumer
-from json import loads
+from kafka import KafkaConsumer, KafkaProducer
+from json import loads, dumps
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.declarative import declarative_base
@@ -8,7 +8,8 @@ from sqlalchemy.orm import sessionmaker
 from Entities.Alarm import Alarm
 from datetime import datetime
 
-bootstrap_server, topic = map(str.strip, open('bootstrapservers.txt', 'r').read().split(','))
+bootstrap_server, consumer_topic, producer_topic = \
+    map(str.strip, open('bootstrapservers.txt', 'r').read().split(','))
 
 Base = declarative_base()
 engine = create_engine('sqlite:///alarms.db')
@@ -17,12 +18,17 @@ Session = sessionmaker(bind=engine)
 
 
 consumer = KafkaConsumer(
-    topic,
+    consumer_topic,
     bootstrap_servers=[bootstrap_server],
     auto_offset_reset='earliest',
     enable_auto_commit=True,
     group_id='cli',
     value_deserializer=lambda x: loads(x.decode('utf-8'))
+)
+
+producer = KafkaProducer(
+    bootstrap_servers=[bootstrap_server],
+    value_serializer=lambda x: dumps(x).encode('utf-8')
 )
 
 
@@ -33,7 +39,6 @@ while True:
 
     for _, messages in data.items():
         for message in messages:
-            print(message.value)
             try:
                 value = message.value
                 sent = datetime.fromtimestamp(value['timestamp'])
@@ -41,17 +46,17 @@ while True:
                 elapsed = (received - sent).total_seconds()
 
                 alarm = Alarm(value['facilityId'], value['sensorId'], elapsed, 1)
-                print(alarm)
+                alarm_json = dumps(alarm.__repr__())
+                producer.send(producer_topic, value=alarm_json)
+                print(alarm.__repr__() + " persisted and published")
 
             except ValueError as e:
                 print(e)
             try:
                 session.merge(alarm)
-                alarms = session.query(Alarm).all()
-                for alarm in alarms:
-                    print(alarm.__repr__() + " persisted.")
                 session.commit()
                 session.flush()
+                session.close()
             except SQLAlchemyError as e:
                 print(e)
                 session.rollback()

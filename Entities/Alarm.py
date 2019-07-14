@@ -16,8 +16,24 @@ class Alarm(Base):
         return self.sensor_id == other.sensor_id
 
     def __repr__(self):
-        return "Alarm({}, {}, {}, {})"\
-            .format(self.facility_id, self.sensor_id, self.elapsed, self.new_status)
+        return f"{{'facilityId': {self.facility_id}, 'sensorId': {self.sensor_id}, " \
+            f"'elapsed': {self.elapsed}, 'new_status': {self.new_status}}}"
+
+    @property
+    def facility_id(self):
+        return self.facility_id
+
+    @property
+    def sensor_id(self):
+        return self.sensor_id
+
+    @sensor_id.setter
+    def sensor_id(self, value):
+        self._sensor_id = value
+
+    @facility_id.setter
+    def facility_id(self, value):
+        self._facility_id = value
 
     __tablename__ = "alarms"
 
@@ -27,6 +43,8 @@ class Alarm(Base):
     received = Column('received', Float)
     elapsed = Column('elapsed', Float)
     new_status = Column('new_status', Boolean)
+
+
 
 
 engine = create_engine('sqlite:///alarms.db')
