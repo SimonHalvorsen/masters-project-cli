@@ -14,16 +14,18 @@ Session = sessionmaker(bind=engine)
 
 @click.command()
 @click.option(
-    '--facility_id',
+    '--facility-id',
     '-f',
-    help='List alarms associated with facility with \'facility_id\'. Default lists alarms from all facilities.'
+    default=None,
+    help='List alarms associated with facility with id \'facility_id\'.'
 )
 @click.option(
-    '--sensor_id',
+    '--sensor-id',
     '-s',
-    help='List alarms associated with sensor with \'sensor_id\'. Default lists alarms from all sensors.'
+    default=None,
+    help='List alarms associated with sensor with id \'sensor_id\'.'
 )
-def list_alarms(facility_id=None, sensor_id=None):
+def list_alarms(facility_id, sensor_id):
     session = Session()
     try:
         alarms = session.query(Alarm).all()

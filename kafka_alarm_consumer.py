@@ -38,7 +38,9 @@ while True:
     data = consumer.poll(timeout_ms=100)
 
     for _, messages in data.items():
+        print(type(messages))
         for message in messages:
+            print(type(message))
             try:
                 value = message.value
                 sent = datetime.fromtimestamp(value['timestamp'])
