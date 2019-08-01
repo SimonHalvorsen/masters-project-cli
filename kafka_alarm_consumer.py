@@ -8,6 +8,13 @@ from sqlalchemy.orm import sessionmaker
 from Entities.Alarm import Alarm
 from datetime import datetime
 
+import py_eureka_client.eureka_client as eureka_client
+
+eureka_client.init(eureka_server="http://localhost:8761/eureka",
+                   app_name="front-end-service",
+                   instance_port=5000)
+
+
 bootstrap_server, consumer_topic, producer_topic = \
     map(str.strip, open('bootstrapservers.txt', 'r').read().split(','))
 
